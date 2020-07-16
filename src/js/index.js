@@ -1,8 +1,11 @@
 var countriesList = [];
 var favoritesCountriesList = [];
+var numberFormat = null;
 
 window.addEventListener("load", () => {
     getCountries();
+
+    numberFormat = Intl.NumberFormat('pt-BR');
 });
 
 async function getCountries() {
@@ -19,7 +22,8 @@ async function getCountries() {
                 id: numericCode,
                 flag,
                 name,
-                population
+                population,
+                formattedPopulation: formatNumber(population)
             }
         });
 
@@ -35,22 +39,34 @@ function renderCountries() {
     let countries = document.querySelector("#countries-list");
     countries.innerHTML = "";
 
-    let h6Countries = document.createElement("h6");
-    h6Countries.textContent = countriesList.length;
-
-    countries.appendChild(h6Countries);
-
     let favoritesCountries = document.querySelector("#favorites-countries-list");
     favoritesCountries.innerHTML = "";
 
-    let h6FavoritesCountries = document.createElement("h6");
-    h6FavoritesCountries.textContent = favoritesCountriesList.length;
+    let totalPopulationCountriesList = countriesList.reduce((previousValue, currentValue) => previousValue + currentValue.population, 0);
 
+    let pTotalPopulation = document.createElement("p");
+    pTotalPopulation.textContent = `Total Population: ${formatNumber(totalPopulationCountriesList)}`;
+
+    let h6Countries = document.createElement("h6");
+    h6Countries.textContent = `Total Countries: ${countriesList.length}`;
+
+    countries.appendChild(pTotalPopulation);
+    countries.appendChild(h6Countries);
+
+    let totalPopulationCountriesFavoritiesList = favoritesCountriesList.reduce((previousValue, currentValue) => previousValue + currentValue.population, 0);
+
+    let pTotalFavoritesPopulation = document.createElement("p");
+    pTotalFavoritesPopulation.textContent = `Total Population: ${formatNumber(totalPopulationCountriesFavoritiesList)}`;
+
+    let h6FavoritesCountries = document.createElement("h6");
+    h6FavoritesCountries.textContent = `Total Countries: ${favoritesCountriesList.length}`;
+
+    favoritesCountries.appendChild(pTotalFavoritesPopulation);
     favoritesCountries.appendChild(h6FavoritesCountries);
 
     countriesList.forEach(country => {
 
-        let { id, name, flag, population } = country;
+        let { id, name, flag, population, formattedPopulation } = country;
 
         let divCountry = document.createElement("div");
         divCountry.className = "country"
@@ -80,7 +96,7 @@ function renderCountries() {
         liName.innerText = name;
 
         let liPopulation = document.createElement("li");
-        liPopulation.innerText = population;
+        liPopulation.innerText = formattedPopulation;
 
         let ul = document.createElement("ul");
         ul.appendChild(liName);
@@ -97,7 +113,7 @@ function renderCountries() {
 
     favoritesCountriesList.forEach(country => {
 
-        let { id, name, flag, population } = country;
+        let { id, name, flag, population, formattedPopulation } = country;
 
         let divCountry = document.createElement("div");
         divCountry.className = "country"
@@ -127,7 +143,7 @@ function renderCountries() {
         liName.innerText = name;
 
         let liPopulation = document.createElement("li");
-        liPopulation.innerText = population;
+        liPopulation.innerText = formattedPopulation;
 
         let ul = document.createElement("ul");
         ul.appendChild(liName);
@@ -165,4 +181,8 @@ function btnEventClickRemove(id) {
     favoritesCountriesList = favoritesCountriesList.filter((country) => country.id !== id);
 
     renderCountries();
+}
+
+function formatNumber(number) {
+    return numberFormat.format(number);
 }
