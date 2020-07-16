@@ -23,6 +23,8 @@ async function getCountries() {
             }
         });
 
+        countriesList = countriesList.sort((a, b) => a.name.localeCompare(b.name));
+
         renderCountries();
     } else {
         console.log("Error to search countries");
@@ -30,13 +32,38 @@ async function getCountries() {
 }
 
 function renderCountries() {
+    let countries = document.querySelector("#countries-list");
+    countries.innerHTML = "";
+
+    let h6Countries = document.createElement("h6");
+    h6Countries.textContent = countriesList.length;
+
+    countries.appendChild(h6Countries);
+
+    let favoritesCountries = document.querySelector("#favorites-countries-list");
+    favoritesCountries.innerHTML = "";
+
+    let h6FavoritesCountries = document.createElement("h6");
+    h6FavoritesCountries.textContent = favoritesCountriesList.length;
+
+    favoritesCountries.appendChild(h6FavoritesCountries);
 
     countriesList.forEach(country => {
 
-        let { name, flag, population } = country;
+        let { id, name, flag, population } = country;
 
         let divCountry = document.createElement("div");
         divCountry.className = "country"
+
+        let divBtn = document.createElement("div");
+
+        let btnAdd = document.createElement("button");
+        btnAdd.id = id;
+        btnAdd.textContent = "+";
+        btnAdd.className = "btn-add"
+        btnAdd.onclick = () => btnEventClickAdd(id);
+
+        divBtn.appendChild(btnAdd);
 
         let divFlag = document.createElement("div");
 
@@ -61,18 +88,29 @@ function renderCountries() {
 
         divInfo.appendChild(ul);
 
+        divCountry.appendChild(divBtn);
         divCountry.appendChild(divFlag);
         divCountry.appendChild(divInfo);
 
-        let countries = document.querySelector("#countries");
         countries.appendChild(divCountry);
     });
 
     favoritesCountriesList.forEach(country => {
 
-        let { name, flag } = country;
+        let { id, name, flag, population } = country;
 
         let divCountry = document.createElement("div");
+        divCountry.className = "country"
+
+        let divBtn = document.createElement("div");
+
+        let btnAdd = document.createElement("button");
+        btnAdd.id = id;
+        btnAdd.textContent = "-";
+        btnAdd.className = "btn-remove"
+        btnAdd.onclick = () => btnEventClickRemove(id);
+
+        divBtn.appendChild(btnAdd);
 
         let divFlag = document.createElement("div");
 
@@ -97,12 +135,34 @@ function renderCountries() {
 
         divInfo.appendChild(ul);
 
+        divCountry.appendChild(divBtn);
         divCountry.appendChild(divFlag);
         divCountry.appendChild(divInfo);
 
-        let countries = document.querySelector("#favorites-countries");
-        countries.appendChild(divCountry);
+        favoritesCountries.appendChild(divCountry);
     });
+}
 
+function btnEventClickAdd(id) {
+    let country = countriesList.find((country) => country.id === id);
 
+    favoritesCountriesList = [...favoritesCountriesList, country];
+
+    favoritesCountriesList.sort((a, b) => a.name.localeCompare(b.name));
+
+    countriesList = countriesList.filter((country) => country.id !== id);
+
+    renderCountries();
+}
+
+function btnEventClickRemove(id) {
+    let country = favoritesCountriesList.find((country) => country.id === id);
+
+    countriesList = [...countriesList, country];
+
+    countriesList.sort((a, b) => a.name.localeCompare(b.name));
+
+    favoritesCountriesList = favoritesCountriesList.filter((country) => country.id !== id);
+
+    renderCountries();
 }
